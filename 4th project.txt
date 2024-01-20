@@ -1,0 +1,126 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class Player {
+    private String name;
+    private int health;
+
+    public Player(String name, int health) {
+        this.name = name;
+        this.health = health;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void decreaseHealth(int amount) {
+        health -= amount;
+    }
+}
+
+class Room {
+    private String description;
+    private Map<String, Room> exits;
+    private String interaction;
+
+    public Room(String description, String interaction) {
+        this.description = description;
+        this.interaction = interaction;
+        this.exits = new HashMap<>();
+    }
+
+    public void addExit(String direction, Room room) {
+        exits.put(direction, room);
+    }
+
+    public String getFullDescription() {
+        return description + "\n" + interaction;
+    }
+
+    public Room getExit(String direction) {
+        return exits.get(direction);
+    }
+}
+
+public class StoryBasedAdventureGame {
+    private Player player;
+    private Room currentRoom;
+    private Scanner scanner;
+
+    public StoryBasedAdventureGame(String playerName) {
+        player = new Player(playerName, 100);
+        scanner = new Scanner(System.in);
+
+        // Create rooms
+        Room startRoom = new Room("You wake up in a mysterious forest.", "You hear strange noises around you.");
+        Room caveEntrance = new Room("You find a dark cave entrance.", "You feel a cold breeze coming from inside.");
+        Room insideCave = new Room("You enter the cave and discover a hidden chamber.", "The chamber is filled with glowing crystals.");
+        Room trappedRoom = new Room("You trigger a trap in the chamber!", "Spikes emerge from the floor.");
+
+        // Connect rooms
+        startRoom.addExit("north", caveEntrance);
+        caveEntrance.addExit("south", startRoom);
+        caveEntrance.addExit("north", insideCave);
+        insideCave.addExit("south", caveEntrance);
+        insideCave.addExit("east", trappedRoom);
+        trappedRoom.addExit("west", insideCave);
+
+        currentRoom = startRoom;
+    }
+
+    public void play() {
+        System.out.println("Welcome to the Story-Based Adventure Game!");
+        System.out.println("Your goal is to navigate through the challenges and reach the end.");
+
+        while (true) {
+            System.out.println("\n" + currentRoom.getFullDescription());
+            System.out.println("Health: " + player.getHealth());
+
+            if (player.getHealth() <= 0) {
+                System.out.println("Game over. You ran out of health.");
+                break;
+            }
+
+            System.out.print("Enter your command: ");
+            String command = scanner.nextLine().toLowerCase();
+
+            if (command.equals("quit")) {
+                System.out.println("Thanks for playing!");
+                break;
+            } else if (command.startsWith("go ")) {
+                String direction = command.substring(3);
+                Room nextRoom = currentRoom.getExit(direction);
+
+                if (nextRoom == null) {
+                    System.out.println("You can't go that way.");
+                } else {
+                    currentRoom = nextRoom;
+                }
+            } else {
+                System.out.println("Invalid command. Try again.");
+            }
+
+            handleStoryEvent();
+        }
+
+        scanner.close();
+    }
+
+    private void handleStoryEvent() {
+        // Implement the story events and decision points here based on the current room.
+        // Modify the player's health, change the room, and provide different outcomes.
+        // Use scanner for user input and handle invalid inputs.
+        // Update the storyline based on user choices.
+    }
+
+    public static void main(String[] args) {
+        StoryBasedAdventureGame game = new StoryBasedAdventureGame("Player1");
+        game.play();
+    }
+}
